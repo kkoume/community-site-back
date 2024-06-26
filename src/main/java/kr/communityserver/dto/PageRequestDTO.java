@@ -27,7 +27,7 @@ public class PageRequestDTO {
     private String type;
     private String keyword;
 
-    @Builder.Default
+        @Builder.Default
     private int orderBy =1;
 
     public Pageable getPageable(String sort){

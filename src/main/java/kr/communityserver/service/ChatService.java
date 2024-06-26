@@ -42,6 +42,29 @@ public class ChatService  {
     private  final UserRepository userRepository;
     private  final ChatReedRepository chatReedRepository;
 
+
+
+    public ResponseEntity userGrade(String uid){
+        int num=0;
+        User user = userRepository.findById(uid).get();
+        String grade = user.getGrade();
+        if(grade.equals("Silver")){
+
+        } else if (grade.equals("Gold")) {
+            if(chatRoomRepository.findAllByUserId(uid).isEmpty()){
+                num=1;
+            }else{
+                if(chatRoomRepository.findAllByUserId(uid).size()<4){
+                    num=1;
+                }
+            }
+        }else{
+            num=1;
+        }
+        return ResponseEntity.ok().body(num);
+    }
+
+
     public ResponseEntity findChatRoom(String userId, int room){
         User user = userRepository.findById(userId).get();
         List<ChatUser> users = chatUserRepository.findAllByUserId(userId);
@@ -146,6 +169,7 @@ public class ChatService  {
         ChatRoom chatRoom = new ChatRoom();
         chatRoom.setRoomName(chatName);
         chatRoom.setStatus(0);
+        chatRoom.setUserId(userId);
         ChatRoom makeRoom = chatRoomRepository.save(chatRoom);
 
         ChatUser user = new ChatUser();
@@ -355,23 +379,6 @@ public class ChatService  {
         return ResponseEntity.ok().body(chat1.getChatPk());
     }
 
-    //user이미지 찾아주기
-    public ResponseEntity searchImage(String uid){
-        try {
-            User user = userRepository.findById(uid).orElseThrow(() -> new RuntimeException("User not found"));
-            String imagePath = fileUploadPath + "/" + user.getImage();
-            Path file = Paths.get(imagePath);
-            org.springframework.core.io.Resource resource =new UrlResource(file.toUri());
-
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource);
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error: " + e.getMessage());
-        }
-    }
-
     //파일 저장하기
     //파일다운로드
     public ResponseEntity downloadFile (String file) {
@@ -412,6 +419,22 @@ public class ChatService  {
             log.info(e.getMessage());
         }
 return null;
+    }
+    //user이미지 찾아주기
+    public ResponseEntity searchImage(String uid){
+        try {
+            User user = userRepository.findById(uid).orElseThrow(() -> new RuntimeException("User not found"));
+            String imagePath = fileUploadPath + "/" + user.getImage();
+            Path file = Paths.get(imagePath);
+            org.springframework.core.io.Resource resource =new UrlResource(file.toUri());
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error: " + e.getMessage());
+        }
     }
 
 

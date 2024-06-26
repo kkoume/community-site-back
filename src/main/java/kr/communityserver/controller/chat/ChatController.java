@@ -1,7 +1,7 @@
 package kr.communityserver.controller.chat;
 
 import jakarta.annotation.Resource;
-import kr.communityserver.Handler.WebsocketHandler;
+import kr.communityserver.handler.WebsocketHandler;
 import kr.communityserver.service.ChatService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,17 @@ public class ChatController {
 
     @Autowired
     private ChatService chatService;
-    
+
+    @GetMapping("/ex")
+    public String ex (){
+        return "/chatting";
+    }
+
+    //멤버 그레이드
+    @GetMapping("/chat/userGrade")
+    public ResponseEntity memberGrade(@RequestParam(name = "userId")String userId){
+            return chatService.userGrade(userId);
+    }
 
     //aside에 내 채팅방 이름 뜨게
     @ResponseBody
@@ -121,18 +131,19 @@ public class ChatController {
         return chatService.uploadImage(file ,chatRoomPk , message, userName , time);
     }
 
-    //유저 이미지
-    @ResponseBody
-    @GetMapping("/chat/userImage")
-    public ResponseEntity userImage(@RequestParam (name = "userId")String uid){
-        return  chatService.searchImage(uid);
-}
 
 
     @GetMapping("/downloadFile")
     public ResponseEntity<InputStreamResource> downloadFile(@RequestParam String fileName ) {
       return   chatService.downloadFile(fileName);
 
+    }
+
+    //유저 이미지
+    @ResponseBody
+    @GetMapping("/chat/userImage")
+    public ResponseEntity userImage(@RequestParam (name = "userId")String uid){
+        return  chatService.searchImage(uid);
     }
 
 

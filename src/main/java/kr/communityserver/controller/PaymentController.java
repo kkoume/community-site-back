@@ -2,6 +2,7 @@ package kr.communityserver.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kr.communityserver.dto.UserDTO;
+import kr.communityserver.repository.UserRepository;
 import kr.communityserver.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -43,6 +44,8 @@ public class PaymentController {
         String orderId;
         String amount;
         String paymentKey;
+        String grade;
+        String uid;
 
         log.info("등급4 : " + parser);
 
@@ -52,17 +55,24 @@ public class PaymentController {
             paymentKey = (String) requestData.get("paymentKey");
             orderId = (String) requestData.get("orderId");
             amount = (String) requestData.get("amount");
+            grade = (String) requestData.get("tier");
+            uid = (String) requestData.get("uid");
         } catch (ParseException e) {
             throw new RuntimeException(e);
         };
 
         log.info("등급5 : " + jsonBody);
 
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUid(uid);
+        userDTO.setGrade(grade);
+
 
         JSONObject obj = new JSONObject();
         obj.put("orderId", orderId);
         obj.put("amount", amount);
         obj.put("paymentKey", paymentKey);
+        obj.put("grade", grade);
 
         // TODO: 개발자센터에 로그인해서 내 결제위젯 연동 키 > 시크릿 키를 입력하세요. 시크릿 키는 외부에 공개되면 안돼요.
         // @docs https://docs.tosspayments.com/reference/using-api/api-keys
@@ -98,7 +108,6 @@ public class PaymentController {
         Reader reader = new InputStreamReader(responseStream, StandardCharsets.UTF_8);
         JSONObject jsonObject = (JSONObject) parser.parse(reader);
         responseStream.close();
-
 
 
         return ResponseEntity.status(code).body(jsonObject);

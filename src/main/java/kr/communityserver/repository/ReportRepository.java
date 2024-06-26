@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface ReportRepository extends JpaRepository<Report, Integer> {
 
-    public List<Report> findAllByBno(int bno);
+    public  List<Report> findAllByBno(int no);
 
 }

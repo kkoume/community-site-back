@@ -7,9 +7,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Configuration
@@ -23,24 +25,46 @@ public class ProjectController {
 
     //프로젝트 출력
     @GetMapping("/project")
-    public PageResponseDTO<ProjectDTO> List(@RequestParam(name = "pg") int pg){
+    public PageResponseDTO<ProjectDTO> List(@RequestParam(name = "pg") int pg,
+                                            @RequestParam(name = "userId") String userId){
+
+        log.info("프로젝트 리스트 출력");
+
         PageRequestDTO pageRequestDTO = new PageRequestDTO();
         pageRequestDTO.setPg(pg);
         log.info("pageRequestDTO controller： " +pageRequestDTO);
 
-        PageResponseDTO pageResponseDTO = projectService.selectProject("test1",pageRequestDTO);
+        PageResponseDTO pageResponseDTO = projectService.selectProject(userId, pageRequestDTO);
 
         log.info("pageResponseDTO： " +pageResponseDTO);
         return pageResponseDTO;
     }
 
+    //프로젝트 타이틀 출력
+    @GetMapping("/project/projectTitle")
+    public String selectTitle(@RequestParam(name = "projectNo") int projectNo){
+
+        log.info("프로젝트 제목 불러오기 : " +projectNo);
+
+        String projectTitle = projectService.selectProjectTitle(projectNo);
+
+        log.info("프로젝트 제목이 뭘까요? : " +projectTitle);
+
+        return projectTitle;
+
+    }
+
     //프로젝트 보드 출력
     @GetMapping("/project/projectboard")
-    public List<ProjectBoard> selectProjectBoard (@RequestParam(name = "projectNo") int projectNo){
+    public String selectProjectBoard (@RequestParam(name = "projectNo") int projectNo){
 
         log.info("프로젝트 보드 출력 !");
 
-        return projectService.selectProjectBoard(projectNo);
+        String projectBoard = projectService.selectProjectBoard(projectNo);
+        
+        log.info("로컬스토리지 내용" +projectBoard);
+
+        return projectBoard;
 
     }
 
@@ -53,6 +77,16 @@ public class ProjectController {
 
         return projectService.addProject(projectDTO);
     }
+
+    @PostMapping("/project/boardsave")
+    public void boardSave(@RequestBody ProjectBoardDTO projectBoardDTO){
+
+        log.info("boardSave 시작");
+
+        projectService.boardSave(projectBoardDTO);
+
+    }
+
 
     //보드 입력
     @PostMapping("/project/boardinsert")
@@ -84,6 +118,17 @@ public class ProjectController {
         log.info("projectSearchUser : " +projectNo);
 
         return projectService.inviteUser(userEmail, projectNo);
+    }
+
+    //프로젝트 삭제
+    @PostMapping("/project/projectdelete")
+    public ResponseEntity<?> projectDelete(@RequestBody Map<String, Integer> requestData){
+        //int project = Integer.parseInt(projectNo.split(":")[0]);
+
+        log.info("고무고무 바즈랑건 "+requestData.get("projectNo"));
+
+
+        return projectService.deleteProject(requestData.get("projectNo"));
     }
 
 }
